@@ -1,0 +1,8 @@
+{
+  "name": "milkly-platform",
+  "private": true,
+  "workspaces": [
+    "milkly-shared",
+    "milkly-api"
+  ]
+}
