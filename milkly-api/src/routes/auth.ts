@@ -1,4 +1,6 @@
+import crypto from "node:crypto";
 import { Hono } from "hono";
+import { setCookie } from "hono/cookie";
 import { z } from "zod";
 import { zValidator } from "../middleware/validation.js";
 import { requireAuth } from "../middleware/auth.js";
@@ -6,6 +8,7 @@ import { generateSsoToken, exchangeSsoToken } from "../services/sso.js";
 import { prisma } from "../prisma.js";
 import { AppError, ErrorCode } from "milkly-shared/errors";
 import { auth } from "../auth.js";
+import { env } from "../env.js";
 
 type Variables = {
   user: typeof auth.$Infer.Session.user | null;
@@ -41,13 +44,33 @@ authRoutes.post(
 
     const userId = await exchangeSsoToken(token, nonce, origin);
 
-    // Create a better-auth session for this user on this portal's origin
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new AppError(ErrorCode.NOT_FOUND, "User not found");
     }
 
-    // Return user data — the portal sets up its own session via better-auth
+    // Create a better-auth compatible session and set the session cookie
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    await prisma.session.create({
+      data: {
+        token: sessionToken,
+        userId: user.id,
+        expiresAt,
+        ipAddress: c.req.header("x-forwarded-for") ?? c.req.header("x-real-ip") ?? null,
+        userAgent: c.req.header("user-agent") ?? null,
+      },
+    });
+
+    setCookie(c, "better-auth.session_token", sessionToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "Lax",
+      expires: expiresAt,
+      path: "/",
+    });
+
     return c.json({
       data: {
         user: {

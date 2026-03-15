@@ -39,13 +39,11 @@ export async function exchangeSsoToken(
   nonce: string,
   requestOrigin: string
 ): Promise<string> {
+  // Read the token first for validation (expiry, nonce, origin checks)
   const ssoToken = await prisma.ssoToken.findUnique({ where: { token } });
 
   if (!ssoToken) {
     throw new AppError(ErrorCode.SSO_TOKEN_EXPIRED, "SSO token not found or already expired");
-  }
-  if (ssoToken.usedAt !== null) {
-    throw new AppError(ErrorCode.SSO_TOKEN_USED, "SSO token has already been used");
   }
   if (ssoToken.expiresAt < new Date()) {
     throw new AppError(ErrorCode.SSO_TOKEN_EXPIRED, "SSO token has expired");
@@ -54,15 +52,24 @@ export async function exchangeSsoToken(
     throw new AppError(ErrorCode.SSO_PORTAL_MISMATCH, "SSO nonce mismatch");
   }
 
+  // Strict origin equality — startsWith would allow milkly.news.evil.com to bypass
   const expectedOrigin = PORTAL_ORIGIN_MAP[ssoToken.targetPortal];
-  if (!expectedOrigin || !requestOrigin.startsWith(expectedOrigin)) {
+  if (!expectedOrigin || requestOrigin !== expectedOrigin) {
     throw new AppError(
       ErrorCode.SSO_PORTAL_MISMATCH,
       "Request origin does not match target portal"
     );
   }
 
-  await prisma.ssoToken.update({ where: { token }, data: { usedAt: new Date() } });
+  // Atomic mark-as-used: only succeeds if usedAt is still null (prevents TOCTOU race)
+  const { count } = await prisma.ssoToken.updateMany({
+    where: { token, usedAt: null },
+    data: { usedAt: new Date() },
+  });
+
+  if (count === 0) {
+    throw new AppError(ErrorCode.SSO_TOKEN_USED, "SSO token has already been used");
+  }
 
   return ssoToken.userId;
 }

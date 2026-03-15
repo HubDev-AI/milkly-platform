@@ -60,7 +60,7 @@ newslettersRoutes.post("/:id/publish", requireAuth, async (c) => {
     throw new AppError(ErrorCode.FORBIDDEN, "You do not have access to this newsletter");
   }
 
-  const baseSlug = generateSlug(newsletter.title);
+  const baseSlug = generateSlug(newsletter.title) || "untitled";
 
   // Resolve slug conflicts for same user
   let slug = baseSlug;

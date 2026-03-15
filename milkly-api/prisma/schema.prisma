@@ -90,7 +90,7 @@ enum DistributionStatus {
 model Newsletter {
   id          String           @id @default(cuid())
   title       String
-  slug        String
+  slug        String?
   content     String
   mklySource  String?
   status      NewsletterStatus @default(DRAFT)

@@ -11,16 +11,12 @@ export const auth = betterAuth({
   trustedOrigins: [env.APP_URL, env.NEWS_URL, env.EMAIL_URL, env.AI_URL, env.LANDING_URL],
   emailAndPassword: { enabled: false },
   socialProviders: {
-    google: {
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-      enabled: !!env.GOOGLE_CLIENT_ID,
-    },
-    apple: {
-      clientId: env.APPLE_CLIENT_ID,
-      clientSecret: env.APPLE_CLIENT_SECRET,
-      enabled: !!env.APPLE_CLIENT_ID,
-    },
+    ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET } }
+      : {}),
+    ...(env.APPLE_CLIENT_ID && env.APPLE_CLIENT_SECRET
+      ? { apple: { clientId: env.APPLE_CLIENT_ID, clientSecret: env.APPLE_CLIENT_SECRET } }
+      : {}),
   },
   plugins: [
     emailOTP({
