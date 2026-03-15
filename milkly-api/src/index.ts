@@ -3,6 +3,15 @@ import { logger } from "hono/logger";
 import { errorHandler } from "./middleware/error-handler.js";
 import { portalCors } from "./middleware/cors.js";
 import { auth } from "./auth.js";
+import { authRoutes } from "./routes/auth.js";
+import { healthRoutes } from "./routes/health.js";
+import { draftsRoutes } from "./routes/drafts.js";
+import { newslettersRoutes } from "./routes/newsletters.js";
+import { publicRoutes } from "./routes/public.js";
+import { subscribersRoutes } from "./routes/subscribers.js";
+import { distributionsRoutes } from "./routes/distributions.js";
+import { templatesRoutes } from "./routes/templates.js";
+import { aiRoutes } from "./routes/ai.js";
 
 // Hono app with typed context variables
 type Variables = {
@@ -17,14 +26,19 @@ app.use("*", errorHandler);
 app.use("*", portalCors);
 app.use("*", logger());
 
-// Health check
-app.get("/health", (c) => c.json({ data: { status: "ok", timestamp: new Date().toISOString() } }));
-
-// better-auth routes
+// better-auth built-in routes
 app.on(["GET", "POST"], "/auth/**", (c) => auth.handler(c.req.raw));
 
-// Feature routes — stubs (filled in Task 4 + Task 5)
-// These will be replaced with actual route imports after those tasks complete
+// Application routes
+app.route("/health", healthRoutes);
+app.route("/auth", authRoutes);
+app.route("/drafts", draftsRoutes);
+app.route("/newsletters", newslettersRoutes);
+app.route("/public", publicRoutes);
+app.route("/subscribers", subscribersRoutes);
+app.route("/distributions", distributionsRoutes);
+app.route("/templates", templatesRoutes);
+app.route("/ai", aiRoutes);
 
 export default app;
 
