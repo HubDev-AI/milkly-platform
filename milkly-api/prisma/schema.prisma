@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// === Better Auth Models ===
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  username      String?   @unique
+  image         String?
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions      Session[]
+  accounts      Account[]
+  newsletters   Newsletter[]
+  templates     Template[]
+  subscribers   Subscriber[]
+  drafts        Draft[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// === Milkly Platform Models ===
+
+enum NewsletterStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum DistributionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Newsletter {
+  id          String           @id @default(cuid())
+  title       String
+  slug        String
+  content     String
+  mklySource  String?
+  status      NewsletterStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  templateId String?
+  template   Template? @relation(fields: [templateId], references: [id])
+
+  distributions Distribution[]
+
+  @@unique([userId, slug])
+  @@index([userId, status])
+  @@index([status, publishedAt])
+}
+
+model Template {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  mklySource  String
+  previewHtml String?
+  isDefault   Boolean @default(false)
+  isPublic    Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  newsletters Newsletter[]
+}
+
+model Draft {
+  id          String    @id @default(cuid())
+  title       String?
+  mklySource  String
+  templateId  String?
+  autoSavedAt DateTime  @default(now())
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  @@index([userId, updatedAt])
+}
+
+model Subscriber {
+  id               String   @id @default(cuid())
+  email            String
+  confirmed        Boolean  @default(false)
+  confirmToken     String   @unique @default(cuid())
+  unsubscribeToken String   @unique @default(cuid())
+  createdAt        DateTime @default(now())
+
+  creatorId String
+  creator   User @relation(fields: [creatorId], references: [id])
+
+  @@unique([email, creatorId])
+  @@index([creatorId, confirmed])
+}
+
+model Distribution {
+  id          String             @id @default(cuid())
+  status      DistributionStatus @default(PENDING)
+  totalSent   Int                @default(0)
+  totalFailed Int                @default(0)
+  errorLog    String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime           @default(now())
+
+  newsletterId String
+  newsletter   Newsletter @relation(fields: [newsletterId], references: [id])
+
+  @@index([newsletterId])
+  @@index([status])
+}
+
+model SsoToken {
+  id           String    @id @default(cuid())
+  token        String    @unique
+  userId       String
+  targetPortal String
+  nonce        String    @unique
+  expiresAt    DateTime
+  usedAt       DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([token])
+  @@index([expiresAt])
+}
