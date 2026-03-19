@@ -1,6 +1,7 @@
 import { createApiClient } from "milkly-shared/api";
-import { getApiBaseUrl } from "milkly-shared/constants";
 
 export { parseApiError } from "milkly-shared/api";
 
-export const apiClient = createApiClient(getApiBaseUrl());
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
+export const apiClient = createApiClient(apiBaseUrl);

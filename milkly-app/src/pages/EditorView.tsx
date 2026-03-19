@@ -95,7 +95,7 @@ const errorContainerStyle: CSSProperties = {
 // ---------------------------------------------------------------------------
 
 export function EditorView(): JSX.Element {
-  const { drafts, createDraft, updateDraft, isLoading: draftsLoading, error: draftsError } = useDrafts();
+  const { drafts, createDraft, updateDraft, refetchDrafts, isLoading: draftsLoading, error: draftsError } = useDrafts();
 
   // Current editor state
   const [mklySource, setMklySource] = useState<string>("");
@@ -112,7 +112,10 @@ export function EditorView(): JSX.Element {
   const [isManuallySaving, setIsManuallySaving] = useState(false);
   const [manualSaveError, setManualSaveError] = useState<string | null>(null);
 
-  // Dialog state for pending navigation
+  // Dialog state for in-app navigation protection.
+  // In the current single-view architecture, the only navigation guard is beforeunload (browser tab close).
+  // The dialog infrastructure is forward-looking: when additional routes are added, wire useBlocker from
+  // react-router-dom to set pendingNavCallback, which opens the UnsavedChangesDialog.
   const [pendingNavCallback, setPendingNavCallback] = useState<(() => void) | null>(null);
   const [isDialogSaving, setIsDialogSaving] = useState(false);
 
@@ -284,7 +287,7 @@ export function EditorView(): JSX.Element {
               error={draftsError?.message ?? "Failed to load drafts."}
               onRetry={() => {
                 hasInitializedRef.current = false;
-                void loadDefaultTemplate();
+                void refetchDrafts();
               }}
             />
           </div>

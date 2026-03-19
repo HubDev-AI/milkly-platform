@@ -1,9 +1,7 @@
 import type { AuthClient } from "milkly-shared/auth";
 import type { User } from "milkly-shared/types";
 import type { PortalId } from "milkly-shared/types";
-import { getApiBaseUrl } from "milkly-shared/constants";
-
-const apiBaseUrl = getApiBaseUrl();
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 async function authFetch(path: string, init?: RequestInit): Promise<Response> {
   return fetch(`${apiBaseUrl}${path}`, {
@@ -29,9 +27,16 @@ function extractUser(data: unknown): User {
 
   const raw = (data as Record<string, unknown>)["user"] as Record<string, unknown>;
 
+  if (typeof raw["id"] !== "string" || raw["id"] === "") {
+    throw new Error("Invalid session: missing user id");
+  }
+  if (typeof raw["email"] !== "string" || raw["email"] === "") {
+    throw new Error("Invalid session: missing user email");
+  }
+
   return {
-    id: typeof raw["id"] === "string" ? raw["id"] : "",
-    email: typeof raw["email"] === "string" ? raw["email"] : "",
+    id: raw["id"],
+    email: raw["email"],
     name: typeof raw["name"] === "string" ? raw["name"] : null,
     username: typeof raw["username"] === "string" ? raw["username"] : null,
     image: typeof raw["image"] === "string" ? raw["image"] : null,
@@ -75,8 +80,13 @@ const authClientInstance: AuthClient = {
       const message =
         typeof body === "object" &&
         body !== null &&
-        "message" in body
-          ? String((body as Record<string, unknown>)["message"])
+        "error" in body &&
+        typeof (body as Record<string, unknown>)["error"] === "object" &&
+        (body as Record<string, unknown>)["error"] !== null &&
+        "message" in ((body as Record<string, unknown>)["error"] as Record<string, unknown>)
+          ? String(
+              ((body as Record<string, unknown>)["error"] as Record<string, unknown>)["message"]
+            )
           : `OTP verification failed (HTTP ${response.status})`;
       throw new Error(message);
     }

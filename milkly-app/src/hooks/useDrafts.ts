@@ -93,6 +93,7 @@ export function useDrafts(): UseDraftsResult {
     drafts: draftsQuery.data ?? [],
     createDraft,
     updateDraft,
+    refetchDrafts: draftsQuery.refetch,
     isLoading: draftsQuery.isLoading,
     error: draftsQuery.error,
   };

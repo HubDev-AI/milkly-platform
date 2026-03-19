@@ -108,6 +108,7 @@ export function UnsavedChangesDialog({
   onCancel,
 }: UnsavedChangesDialogProps): JSX.Element | null {
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
+  const discardBtnRef = useRef<HTMLButtonElement>(null);
   const saveBtnRef = useRef<HTMLButtonElement>(null);
 
   // Focus the cancel button when the dialog opens
@@ -131,6 +132,7 @@ export function UnsavedChangesDialog({
       if (event.key === "Tab") {
         const focusableEls = [
           saveBtnRef.current,
+          discardBtnRef.current,
           cancelBtnRef.current,
         ].filter((el): el is HTMLButtonElement => el !== null);
 
@@ -198,6 +200,7 @@ export function UnsavedChangesDialog({
             Cancel
           </button>
           <button
+            ref={discardBtnRef}
             type="button"
             style={discardBtnStyle}
             onClick={onDiscard}
