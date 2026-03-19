@@ -6,20 +6,21 @@ const DRAFTS_QUERY_KEY = ["drafts"] as const;
 
 export interface CreateDraftInput {
   mklySource: string;
-  title?: string;
-  templateId?: string;
+  title?: string | undefined;
+  templateId?: string | undefined;
 }
 
 export interface UpdateDraftInput {
   id: string;
-  mklySource?: string;
-  title?: string;
+  mklySource?: string | undefined;
+  title?: string | undefined;
 }
 
 export interface UseDraftsResult {
   drafts: Draft[];
   createDraft: (input: CreateDraftInput) => Promise<Draft>;
   updateDraft: (input: UpdateDraftInput) => Promise<Draft>;
+  refetchDrafts: () => Promise<unknown>;
   isLoading: boolean;
   error: Error | null;
 }
