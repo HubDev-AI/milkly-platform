@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthGuard } from "@/components/AuthGuard";
 import { GuestRoute } from "@/components/GuestRoute";
+import { EditorView } from "@/pages/EditorView";
 import { LoginPage } from "@/pages/LoginPage";
 import { VerifyOtpPage } from "@/pages/VerifyOtpPage";
 import { SsoCallbackPage } from "@/pages/SsoCallbackPage";
@@ -113,30 +114,6 @@ class AppErrorBoundary extends Component<
 }
 
 // ---------------------------------------------------------------------------
-// Editor placeholder (Task 6 replaces this with the real EditorView)
-// ---------------------------------------------------------------------------
-
-const editorPlaceholderStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: "100dvh",
-  background: "var(--milkly-bg-primary)",
-  fontFamily: "var(--milkly-font-sans)",
-  color: "var(--milkly-fg-secondary)",
-  fontSize: "0.875rem",
-};
-
-function EditorViewPlaceholder(): JSX.Element {
-  // TODO: replace with real EditorView when Task 6 is complete
-  return (
-    <div style={editorPlaceholderStyle} aria-label="Editor">
-      Editor loading…
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // App root
 // ---------------------------------------------------------------------------
 
@@ -167,7 +144,7 @@ function App(): JSX.Element {
               path="/"
               element={
                 <AuthGuard>
-                  <EditorViewPlaceholder />
+                  <EditorView />
                 </AuthGuard>
               }
             />
