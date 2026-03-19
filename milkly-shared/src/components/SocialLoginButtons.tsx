@@ -1,12 +1,13 @@
-import React from "react";
+import { useState } from "react";
+import type { CSSProperties, ReactElement } from "react";
 
 export interface SocialLoginButtonsProps {
   onGoogleLogin: () => void;
   onAppleLogin: () => void;
-  className?: string;
+  className?: string | undefined;
 }
 
-const dividerStyle: React.CSSProperties = {
+const dividerStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: "12px",
@@ -16,19 +17,19 @@ const dividerStyle: React.CSSProperties = {
   color: "var(--milkly-fg-secondary)",
 };
 
-const dividerLineStyle: React.CSSProperties = {
+const dividerLineStyle: CSSProperties = {
   flex: 1,
   height: "1px",
   backgroundColor: "var(--milkly-border)",
 };
 
-const buttonContainerStyle: React.CSSProperties = {
+const buttonContainerStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: "10px",
 };
 
-const buttonBaseStyle: React.CSSProperties = {
+const buttonBaseStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -50,7 +51,7 @@ const buttonBaseStyle: React.CSSProperties = {
   textDecoration: "none",
 };
 
-function GoogleIcon(): React.ReactElement {
+function GoogleIcon(): ReactElement {
   return (
     <svg
       width="18"
@@ -79,7 +80,7 @@ function GoogleIcon(): React.ReactElement {
   );
 }
 
-function AppleIcon(): React.ReactElement {
+function AppleIcon(): ReactElement {
   return (
     <svg
       width="18"
@@ -100,17 +101,17 @@ export function SocialLoginButtons({
   onGoogleLogin,
   onAppleLogin,
   className,
-}: SocialLoginButtonsProps): React.ReactElement {
-  const [googleHovered, setGoogleHovered] = React.useState(false);
-  const [appleHovered, setAppleHovered] = React.useState(false);
+}: SocialLoginButtonsProps): ReactElement {
+  const [googleHovered, setGoogleHovered] = useState(false);
+  const [appleHovered, setAppleHovered] = useState(false);
 
-  const googleButtonStyle: React.CSSProperties = {
+  const googleButtonStyle: CSSProperties = {
     ...buttonBaseStyle,
     borderColor: googleHovered ? "var(--milkly-fg-secondary)" : "var(--milkly-border)",
     backgroundColor: googleHovered ? "var(--milkly-bg-secondary, hsl(40 25% 94%))" : "var(--milkly-bg-primary)",
   };
 
-  const appleButtonStyle: React.CSSProperties = {
+  const appleButtonStyle: CSSProperties = {
     ...buttonBaseStyle,
     borderColor: appleHovered ? "var(--milkly-fg-secondary)" : "var(--milkly-border)",
     backgroundColor: appleHovered ? "var(--milkly-bg-secondary, hsl(40 25% 94%))" : "var(--milkly-bg-primary)",

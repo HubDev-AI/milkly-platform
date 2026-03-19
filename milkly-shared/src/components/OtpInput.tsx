@@ -9,7 +9,7 @@ export interface OtpInputProps {
 const FONT_MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace";
 const DESTRUCTIVE_COLOR = "hsl(0 84% 60%)";
 
-export function OtpInput({ onComplete, length = 6, error }: OtpInputProps) {
+export function OtpInput({ onComplete, length = 6, error }: OtpInputProps): JSX.Element {
   const [digits, setDigits] = useState<string[]>(() => Array(length).fill(""));
   const inputRefs = useRef<Array<HTMLInputElement | null>>(
     Array(length).fill(null)
@@ -37,9 +37,8 @@ export function OtpInput({ onComplete, length = 6, error }: OtpInputProps) {
           requestAnimationFrame(() => focusInput(index + 1));
         }
 
-        const otp = next.join("");
-        if (otp.length === length && !otp.includes("")) {
-          onComplete(otp);
+        if (next.every(d => d !== "")) {
+          onComplete(next.join(""));
         }
 
         return next;
@@ -92,9 +91,8 @@ export function OtpInput({ onComplete, length = 6, error }: OtpInputProps) {
           next[i] = pasted[i] ?? "";
         }
 
-        const otp = next.join("");
-        if (otp.length === length && !otp.includes("")) {
-          onComplete(otp);
+        if (next.every(d => d !== "")) {
+          onComplete(next.join(""));
         }
 
         const lastFilledIndex = Math.min(pasted.length, length - 1);

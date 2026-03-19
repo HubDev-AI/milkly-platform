@@ -4,8 +4,8 @@ import { useState } from "react";
 export interface LoginFormProps {
   onSendOtp: (email: string) => Promise<void>;
   onSuccess: () => void;
-  className?: string;
-  style?: CSSProperties;
+  className?: string | undefined;
+  style?: CSSProperties | undefined;
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

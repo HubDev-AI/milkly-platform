@@ -102,9 +102,20 @@ export function SsoCallback({
 
       let user: User | undefined;
       try {
-        const body = (await response.json()) as { data: { user: User } };
-        user = body.data.user;
+        const body = (await response.json()) as { data?: { user?: User } };
+        user = body.data?.user;
       } catch (_parseErr) {
+        if (!cancelled) {
+          setState({
+            status: "error",
+            message: "Something went wrong. Please try again.",
+            error: undefined,
+          });
+        }
+        return;
+      }
+
+      if (!user) {
         if (!cancelled) {
           setState({
             status: "error",
@@ -117,7 +128,7 @@ export function SsoCallback({
 
       if (!cancelled) {
         setState({ status: "success" });
-        if (onSuccess !== undefined && user !== undefined) {
+        if (onSuccess !== undefined) {
           onSuccess(user);
         }
         window.location.href = "/";
@@ -129,7 +140,7 @@ export function SsoCallback({
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot SSO exchange on mount; re-running on callback ref changes is incorrect
   }, []);
 
   const containerStyle: CSSProperties = {
