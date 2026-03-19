@@ -1,0 +1,44 @@
+import type { CSSProperties, ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { LoadingSkeleton } from "milkly-shared/components";
+import { authClient } from "@/lib/auth-client";
+
+export interface GuestRouteProps {
+  children: ReactNode;
+}
+
+const loadingContainerStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "100dvh",
+  gap: "1rem",
+  padding: "2rem",
+  background: "var(--milkly-bg-primary)",
+};
+
+export function GuestRoute({ children }: GuestRouteProps): JSX.Element {
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["session"],
+    queryFn: () => authClient.getSession(),
+    retry: false,
+    staleTime: 30_000,
+  });
+
+  if (isLoading) {
+    return (
+      <div style={loadingContainerStyle} aria-label="Checking authentication…">
+        <LoadingSkeleton width="200px" height="1.25rem" />
+        <LoadingSkeleton width="320px" height="1rem" />
+      </div>
+    );
+  }
+
+  if (user !== null && user !== undefined) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
