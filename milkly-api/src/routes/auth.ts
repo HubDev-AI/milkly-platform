@@ -25,13 +25,16 @@ authRoutes.post(
   requireAuth,
   zValidator(
     "json",
-    z.object({ targetPortal: z.enum(["app", "news", "email", "ai", "landing"]) })
+    z.object({
+      targetPortal: z.enum(["app", "news", "email", "ai", "landing"]),
+      returnPath: z.string().optional(),
+    })
   ),
   async (c) => {
     const user = c.get("user");
     if (!user) throw new AppError(ErrorCode.AUTH_REQUIRED, "Authentication required");
-    const { targetPortal } = c.req.valid("json");
-    const result = await generateSsoToken(user.id, targetPortal);
+    const { targetPortal, returnPath } = c.req.valid("json");
+    const result = await generateSsoToken(user.id, targetPortal, returnPath);
     return c.json({ data: result });
   }
 );

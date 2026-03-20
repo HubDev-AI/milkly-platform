@@ -49,16 +49,16 @@ function App({ queryClient }: AppProps): JSX.Element {
             <Route path="/@:username" element={<CreatorProfilePage />} />
             <Route path="/confirm/:token" element={<ConfirmPage />} />
             <Route path="/unsubscribe/:token" element={<UnsubscribePage />} />
+            <Route
+              path="/publish"
+              element={
+                <AuthGuard>
+                  <PublishPage />
+                </AuthGuard>
+              }
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
-          <Route
-            path="/publish"
-            element={
-              <AuthGuard>
-                <PublishPage />
-              </AuthGuard>
-            }
-          />
           <Route path="/auth/callback" element={<SsoCallbackPage />} />
         </Routes>
       </QueryClientProvider>

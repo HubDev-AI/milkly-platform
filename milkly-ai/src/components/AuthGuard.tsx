@@ -35,6 +35,7 @@ const linkStyle: CSSProperties = {
 };
 
 export function AuthGuard({ children }: AuthGuardProps): JSX.Element {
+  const appUrl = import.meta.env.VITE_APP_URL ?? "https://milkly.app";
   const { data: user, isLoading } = useQuery({
     queryKey: ["session"],
     queryFn: () => authClient.getSession(),
@@ -58,7 +59,7 @@ export function AuthGuard({ children }: AuthGuardProps): JSX.Element {
         <p style={messageStyle}>
           Please sign in to use Milkly AI.
         </p>
-        <a href="http://localhost:5173" style={linkStyle}>
+        <a href={appUrl} style={linkStyle}>
           Go to Milkly Editor to sign in
         </a>
       </div>

@@ -1,7 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingSkeleton } from "milkly-shared/components";
-import { PORTALS } from "milkly-shared/constants";
 import { authClient } from "@/lib/auth-client";
 
 export interface AuthGuardProps {
@@ -20,6 +19,7 @@ const loadingContainerStyle: CSSProperties = {
 };
 
 export function AuthGuard({ children }: AuthGuardProps): JSX.Element {
+  const appUrl = import.meta.env.VITE_APP_URL ?? "https://milkly.app";
   const { data: user, isLoading } = useQuery({
     queryKey: ["session"],
     queryFn: () => authClient.getSession(),
@@ -38,7 +38,7 @@ export function AuthGuard({ children }: AuthGuardProps): JSX.Element {
   }
 
   if (user === null || user === undefined) {
-    const appLoginUrl = `${PORTALS.app.url}/login?returnTo=${encodeURIComponent(window.location.href)}`;
+    const appLoginUrl = `${appUrl}/login?returnTo=${encodeURIComponent(window.location.href)}`;
     window.location.href = appLoginUrl;
     return (
       <div style={loadingContainerStyle} aria-label="Redirecting to login...">

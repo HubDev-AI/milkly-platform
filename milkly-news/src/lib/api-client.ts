@@ -118,9 +118,9 @@ export async function fetchDrafts(): Promise<Draft[]> {
   return response.data;
 }
 
-export async function publishNewsletter(id: string): Promise<Newsletter> {
+export async function publishNewsletter(draftId: string): Promise<Newsletter> {
   const response = await apiClient.post<Newsletter>(
-    `/newsletters/${encodeURIComponent(id)}/publish`,
+    `/drafts/${encodeURIComponent(draftId)}/publish`,
   );
   return response.data;
 }

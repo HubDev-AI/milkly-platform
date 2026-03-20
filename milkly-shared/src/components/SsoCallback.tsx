@@ -59,7 +59,7 @@ export function SsoCallback({
         return;
       }
 
-      const { token, nonce } = parsed;
+      const { token, nonce, returnPath } = parsed;
       const baseUrl = apiBaseUrl ?? getApiBaseUrl();
 
       let response: Response;
@@ -131,7 +131,12 @@ export function SsoCallback({
         if (onSuccess !== undefined) {
           onSuccess(user);
         } else if (typeof window !== "undefined") {
-          window.location.href = "/";
+          // Validate returnPath starts with "/" to prevent open redirect
+          const safePath =
+            returnPath && returnPath.startsWith("/") && !returnPath.startsWith("//")
+              ? returnPath
+              : "/";
+          window.location.href = safePath;
         }
       }
     }
