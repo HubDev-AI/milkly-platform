@@ -4,6 +4,7 @@
   "workspaces": [
     "milkly-shared",
     "milkly-api",
-    "milkly-app"
+    "milkly-app",
+    "milkly-news"
   ]
 }
