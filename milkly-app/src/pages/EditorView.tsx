@@ -1,59 +1,15 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { AppErrorDisplay, LoadingSkeleton } from "milkly-shared/components";
 import type { Template } from "milkly-shared/types";
+import { useEditorStore } from "@mklyml/editor/store/editor-store";
 import { apiClient } from "@/lib/api-client";
 import { useDrafts } from "@/hooks/useDrafts";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { EditorToolbar } from "@/components/EditorToolbar";
+import { EmbeddedMklyEditor } from "@/components/EmbeddedMklyEditor";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { MenuDialog } from "@/components/MenuDialog";
-
-// ---------------------------------------------------------------------------
-// TODO: integrate @mklyml/editor when package available
-// Using textarea fallback until @mklyml/editor is resolvable from npm.
-// ---------------------------------------------------------------------------
-
-interface MklyEditorFallbackProps {
-  value: string;
-  onChange: (source: string) => void;
-  readOnly?: boolean | undefined;
-}
-
-function MklyEditorFallback({
-  value,
-  onChange,
-  readOnly = false,
-}: MklyEditorFallbackProps): JSX.Element {
-  const editorAreaStyle: CSSProperties = {
-    width: "100%",
-    height: "100%",
-    resize: "none",
-    border: "none",
-    outline: "none",
-    padding: "2rem 3rem",
-    fontSize: "1rem",
-    lineHeight: 1.7,
-    fontFamily: "var(--milkly-font-sans)",
-    color: "var(--milkly-fg-primary)",
-    background: "var(--milkly-bg-primary)",
-    boxSizing: "border-box",
-  };
-
-  return (
-    <textarea
-      style={editorAreaStyle}
-      value={value}
-      onChange={(e) => {
-        onChange(e.target.value);
-      }}
-      readOnly={readOnly}
-      aria-label="mkly editor"
-      aria-multiline="true"
-      spellCheck
-    />
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -98,8 +54,10 @@ const errorContainerStyle: CSSProperties = {
 export function EditorView(): JSX.Element {
   const { drafts, createDraft, updateDraft, refetchDrafts, isLoading: draftsLoading, error: draftsError } = useDrafts();
 
-  // Current editor state
-  const [mklySource, setMklySource] = useState<string>("");
+  // Read source from the mklyml editor's zustand store
+  const mklySource = useEditorStore((s) => s.source);
+
+  // Current editor state (non-source)
   const [draftId, setDraftId] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -132,6 +90,18 @@ export function EditorView(): JSX.Element {
 
   const { isDirty, setHasChanges } = useUnsavedChanges();
 
+  // Track editor store source changes for dirty detection
+  useEffect(() => {
+    const unsub = useEditorStore.subscribe(
+      (state, prev) => {
+        if (state.source !== prev.source) {
+          setHasChanges(true);
+        }
+      },
+    );
+    return unsub;
+  }, [setHasChanges]);
+
   // ---------------------------------------------------------------------------
   // Initialization: load most-recent draft or default template
   // ---------------------------------------------------------------------------
@@ -143,7 +113,7 @@ export function EditorView(): JSX.Element {
       const response = await apiClient.get<Template[]>("/templates");
       const defaultTemplate = response.data.find((t) => t.isDefault);
       const source = defaultTemplate?.mklySource ?? "";
-      setMklySource(source);
+      useEditorStore.getState().setSource(source);
       setIsInitialized(true);
     } catch (err) {
       const message =
@@ -165,7 +135,7 @@ export function EditorView(): JSX.Element {
       const mostRecent = drafts[0];
       if (mostRecent !== undefined) {
         setDraftId(mostRecent.id);
-        setMklySource(mostRecent.mklySource);
+        useEditorStore.getState().setSource(mostRecent.mklySource);
         setTitle(mostRecent.title ?? "");
         setIsInitialized(true);
       }
@@ -176,16 +146,8 @@ export function EditorView(): JSX.Element {
   }, [draftsLoading, drafts, loadDefaultTemplate]);
 
   // ---------------------------------------------------------------------------
-  // Handle editor content changes
+  // Handle title changes
   // ---------------------------------------------------------------------------
-
-  const handleEditorChange = useCallback(
-    (source: string) => {
-      setMklySource(source);
-      setHasChanges(true);
-    },
-    [setHasChanges],
-  );
 
   const handleTitleChange = useCallback((newTitle: string) => {
     setTitle(newTitle);
@@ -199,13 +161,14 @@ export function EditorView(): JSX.Element {
   const handleSave = useCallback(async () => {
     setIsManuallySaving(true);
     setManualSaveError(null);
+    const currentSource = useEditorStore.getState().source;
 
     try {
       if (draftId !== null) {
-        await updateDraft({ id: draftId, mklySource, title: title || undefined });
+        await updateDraft({ id: draftId, mklySource: currentSource, title: title || undefined });
       } else {
         const newDraft = await createDraft({
-          mklySource,
+          mklySource: currentSource,
           title: title || undefined,
         });
         setDraftId(newDraft.id);
@@ -217,7 +180,7 @@ export function EditorView(): JSX.Element {
     } finally {
       setIsManuallySaving(false);
     }
-  }, [draftId, mklySource, title, updateDraft, createDraft, setHasChanges]);
+  }, [draftId, title, updateDraft, createDraft, setHasChanges]);
 
   // ---------------------------------------------------------------------------
   // Unsaved changes dialog
@@ -323,10 +286,7 @@ export function EditorView(): JSX.Element {
         )}
 
         {!isLoading && templateError === null && !showDraftError && (
-          <MklyEditorFallback
-            value={mklySource}
-            onChange={handleEditorChange}
-          />
+          <EmbeddedMklyEditor documentId={draftId ?? undefined} />
         )}
       </main>
 
