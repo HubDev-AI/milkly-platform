@@ -8,18 +8,36 @@ import { CreatorProfilePage } from "@/pages/CreatorProfilePage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { SsoCallbackPage } from "@/pages/SsoCallbackPage";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
+function createQueryClient(): QueryClient {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
     },
-  },
-});
+  });
+}
 
-function App(): JSX.Element {
+// Client-side singleton — SSR creates a fresh one per request via props
+let clientQueryClient: QueryClient | undefined;
+
+function getClientQueryClient(): QueryClient {
+  if (!clientQueryClient) {
+    clientQueryClient = createQueryClient();
+  }
+  return clientQueryClient;
+}
+
+interface AppProps {
+  queryClient?: QueryClient | undefined;
+}
+
+function App({ queryClient }: AppProps): JSX.Element {
+  const client = queryClient ?? getClientQueryClient();
+
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={client}>
         <Routes>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<BrowsePage />} />
@@ -35,3 +53,4 @@ function App(): JSX.Element {
 }
 
 export default App;
+export { createQueryClient };

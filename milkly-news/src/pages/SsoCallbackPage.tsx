@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useSearchParams } from "react-router-dom";
 import { SsoCallback } from "milkly-shared/components";
 
 const pageStyle: CSSProperties = {
@@ -11,7 +12,7 @@ const pageStyle: CSSProperties = {
 };
 
 export function SsoCallbackPage(): JSX.Element {
-  const searchParams = new URLSearchParams(window.location.search);
+  const [searchParams] = useSearchParams();
 
   return (
     <main style={pageStyle} aria-label="SSO callback">

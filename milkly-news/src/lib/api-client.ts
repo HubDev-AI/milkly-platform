@@ -47,7 +47,7 @@ export async function fetchNewsletter(
   slug: string,
 ): Promise<NewsletterWithUser> {
   const response = await apiClient.get<NewsletterWithUser>(
-    `/public/newsletters/@${username}/${slug}`,
+    `/public/newsletters/@${encodeURIComponent(username)}/${encodeURIComponent(slug)}`,
   );
   return response.data;
 }
@@ -56,7 +56,7 @@ export async function fetchCreatorProfile(
   username: string,
 ): Promise<CreatorProfile> {
   const response = await apiClient.get<CreatorProfile>(
-    `/public/creators/@${username}`,
+    `/public/creators/@${encodeURIComponent(username)}`,
   );
   return response.data;
 }

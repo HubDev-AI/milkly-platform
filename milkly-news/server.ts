@@ -8,14 +8,14 @@ const __dirname = new URL(".", import.meta.url).pathname;
 
 let vite: ViteDevServer | undefined;
 let template: string;
-let render: (url: string) => string;
+let render: (url: string) => { html: string; statusCode: number };
 let ssrCssVariables: string;
 
 if (isProduction) {
   template = readFileSync(resolve(__dirname, "dist/client/index.html"), "utf-8");
   const serverModule = (await import(
     resolve(__dirname, "dist/server/entry-server.js")
-  )) as { render: (url: string) => string; cssVariables: string };
+  )) as { render: (url: string) => { html: string; statusCode: number }; cssVariables: string };
   render = serverModule.render;
   ssrCssVariables = serverModule.cssVariables;
 } else {
@@ -122,6 +122,10 @@ async function handleRequest(req: Request): Promise<Response> {
   if (isProduction && (pathname.startsWith("/assets/") || pathname.includes("."))) {
     try {
       const filePath = resolve(__dirname, `dist/client${pathname}`);
+      const clientDir = resolve(__dirname, "dist/client/");
+      if (!filePath.startsWith(clientDir)) {
+        return new Response("Forbidden", { status: 403 });
+      }
       const file = Bun.file(filePath);
       if (await file.exists()) {
         const cacheControl = pathname.startsWith("/assets/")
@@ -150,28 +154,31 @@ async function handleRequest(req: Request): Promise<Response> {
   // SSR render for page requests
   try {
     let html: string;
+    let statusCode = 200;
 
     if (!isProduction && vite) {
       const devTemplate = await vite.transformIndexHtml(pathname, template);
       const mod = (await vite.ssrLoadModule("/src/entry-server.tsx")) as {
-        render: (url: string) => string;
+        render: (url: string) => { html: string; statusCode: number };
         cssVariables: string;
       };
-      const appHtml = mod.render(pathname);
+      const result = mod.render(pathname);
       const tokenStyle = `<style>:root { ${mod.cssVariables} }</style>`;
       html = devTemplate
         .replace("</head>", `${tokenStyle}</head>`)
-        .replace("<!--ssr-outlet-->", appHtml);
+        .replace("<!--ssr-outlet-->", result.html);
+      statusCode = result.statusCode;
     } else {
-      const appHtml = render(pathname);
+      const result = render(pathname);
       const tokenStyle = `<style>:root { ${ssrCssVariables} }</style>`;
       html = template
         .replace("</head>", `${tokenStyle}</head>`)
-        .replace("<!--ssr-outlet-->", appHtml);
+        .replace("<!--ssr-outlet-->", result.html);
+      statusCode = result.statusCode;
     }
 
     return new Response(html, {
-      status: 200,
+      status: statusCode,
       headers: { "Content-Type": "text/html" },
     });
   } catch (e) {

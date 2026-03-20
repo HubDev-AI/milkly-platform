@@ -3,8 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import DOMPurify from "isomorphic-dompurify";
 import { LoadingSkeleton } from "milkly-shared/components";
-import { AppError, ErrorCode } from "milkly-shared/errors";
 import { fetchNewsletter } from "@/lib/api-client";
+import { isNotFoundError } from "@/lib/error-utils";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 // ---------------------------------------------------------------------------
@@ -29,10 +29,6 @@ function getInitials(name: string | null): string {
   if (parts.length === 0) return "?";
   if (parts.length === 1) return (parts[0]?.[0] ?? "?").toUpperCase();
   return `${(parts[0]?.[0] ?? "").toUpperCase()}${(parts[parts.length - 1]?.[0] ?? "").toUpperCase()}`;
-}
-
-function isNotFoundError(error: Error): boolean {
-  return error instanceof AppError && error.code === ErrorCode.NOT_FOUND;
 }
 
 // ---------------------------------------------------------------------------

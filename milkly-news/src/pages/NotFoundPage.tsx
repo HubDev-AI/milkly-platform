@@ -40,7 +40,7 @@ const linkStyle: CSSProperties = {
 
 export function NotFoundPage(): JSX.Element {
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} data-page="not-found">
       <h1 style={headingStyle}>Page not found</h1>
       <p style={messageStyle}>
         The page you are looking for does not exist or has been moved.

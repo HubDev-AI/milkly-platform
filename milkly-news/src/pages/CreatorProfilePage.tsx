@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LoadingSkeleton } from "milkly-shared/components";
 import { fetchCreatorProfile } from "@/lib/api-client";
 import type { NewsletterWithUser } from "@/lib/api-client";
+import { isNotFoundError } from "@/lib/error-utils";
 import { NewsletterCard } from "@/components/NewsletterCard";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
@@ -28,18 +29,6 @@ function getInitials(name: string | null): string {
   if (parts.length === 0) return "?";
   if (parts.length === 1) return (parts[0]?.[0] ?? "?").toUpperCase();
   return `${(parts[0]?.[0] ?? "").toUpperCase()}${(parts[parts.length - 1]?.[0] ?? "").toUpperCase()}`;
-}
-
-function isNotFoundError(error: unknown): boolean {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code: unknown }).code === "NOT_FOUND"
-  ) {
-    return true;
-  }
-  return false;
 }
 
 // ---------------------------------------------------------------------------
