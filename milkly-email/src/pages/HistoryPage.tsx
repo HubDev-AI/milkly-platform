@@ -301,7 +301,13 @@ export function HistoryPage(): JSX.Element {
     queryKey: ["distributions", page, PAGE_SIZE],
     queryFn: () => fetchDistributions(page, PAGE_SIZE),
     staleTime: 15_000,
-    refetchInterval: 10_000,
+    refetchInterval: (query) => {
+      const distributions = query.state.data?.distributions;
+      if (distributions?.some((d: { status: string }) => d.status === "PENDING" || d.status === "PROCESSING")) {
+        return 10_000;
+      }
+      return false;
+    },
   });
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;

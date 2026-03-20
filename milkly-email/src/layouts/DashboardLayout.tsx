@@ -146,7 +146,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps): JSX.Element
   });
 
   async function handleLogout(): Promise<void> {
-    await authClient.logout();
+    try {
+      await authClient.logout();
+    } catch {
+      // Best-effort: clear local state even if server-side logout failed
+    }
     queryClient.clear();
     navigate("/");
   }
