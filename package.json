@@ -6,6 +6,7 @@
     "milkly-api",
     "milkly-app",
     "milkly-news",
-    "milkly-landing"
+    "milkly-landing",
+    "milkly-ai"
   ]
 }

@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/authguard.tsx","./src/lib/api-client.ts","./src/lib/auth-client.ts","./src/pages/generatepage.tsx","./src/pages/ssocallbackpage.tsx"],"version":"5.9.3"}

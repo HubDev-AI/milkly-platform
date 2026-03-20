@@ -13,7 +13,8 @@ const PORTAL_ORIGIN_MAP: Record<string, string> = {
 
 export async function generateSsoToken(
   userId: string,
-  targetPortal: string
+  targetPortal: string,
+  returnPath?: string
 ): Promise<{ redirectUrl: string }> {
   const portalOrigin = PORTAL_ORIGIN_MAP[targetPortal];
   if (!portalOrigin) {
@@ -30,7 +31,7 @@ export async function generateSsoToken(
     data: { token, nonce, userId, targetPortal, expiresAt },
   });
 
-  const redirectUrl = `${portalOrigin}/auth/callback?token=${token}&nonce=${nonce}`;
+  const redirectUrl = `${portalOrigin}/auth/callback?token=${token}&nonce=${nonce}${returnPath ? `&returnPath=${encodeURIComponent(returnPath)}` : ""}`;
   return { redirectUrl };
 }
 

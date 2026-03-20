@@ -1,4 +1,5 @@
 import { type CSSProperties, useCallback, useState } from "react";
+import { Menu } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -61,6 +62,22 @@ const saveBtnDisabledStyle: CSSProperties = {
   cursor: "not-allowed",
 };
 
+const menuBtnStyle: CSSProperties = {
+  flexShrink: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "2.25rem",
+  height: "2.25rem",
+  borderRadius: "var(--milkly-radius-md)",
+  border: "1px solid var(--milkly-border)",
+  background: "transparent",
+  color: "var(--milkly-fg-primary)",
+  cursor: "pointer",
+  fontFamily: "var(--milkly-font-sans)",
+  transition: "background 0.12s ease",
+};
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -91,6 +108,8 @@ export interface EditorToolbarProps {
   isAutoSaving: boolean;
   /** Timestamp of the last successful save (auto or manual) */
   lastSavedAt: Date | null;
+  /** Called when the user clicks the menu trigger button */
+  onMenuOpen: () => void;
 }
 
 export function EditorToolbar({
@@ -100,6 +119,7 @@ export function EditorToolbar({
   isSaving,
   isAutoSaving,
   lastSavedAt,
+  onMenuOpen,
 }: EditorToolbarProps): JSX.Element {
   const [, forceUpdate] = useState(0);
 
@@ -140,6 +160,22 @@ export function EditorToolbar({
 
   return (
     <header style={toolbarStyle} aria-label="Editor toolbar" onMouseEnter={handleMouseEnter}>
+      <button
+        type="button"
+        style={menuBtnStyle}
+        onClick={onMenuOpen}
+        aria-label="Open menu"
+        aria-haspopup="dialog"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "var(--milkly-bg-secondary)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "transparent";
+        }}
+      >
+        <Menu style={{ width: "1.25rem", height: "1.25rem" }} />
+      </button>
+
       <input
         type="text"
         placeholder="Untitled draft"

@@ -5,8 +5,12 @@ import { PublicLayout } from "@/layouts/PublicLayout";
 import { BrowsePage } from "@/pages/BrowsePage";
 import { NewsletterPage } from "@/pages/NewsletterPage";
 import { CreatorProfilePage } from "@/pages/CreatorProfilePage";
+import { ConfirmPage } from "@/pages/ConfirmPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import { PublishPage } from "@/pages/PublishPage";
 import { SsoCallbackPage } from "@/pages/SsoCallbackPage";
+import { UnsubscribePage } from "@/pages/UnsubscribePage";
+import { AuthGuard } from "@/components/AuthGuard";
 
 function createQueryClient(): QueryClient {
   return new QueryClient({
@@ -43,6 +47,16 @@ function App({ queryClient }: AppProps): JSX.Element {
             <Route path="/" element={<BrowsePage />} />
             <Route path="/@:username/:slug" element={<NewsletterPage />} />
             <Route path="/@:username" element={<CreatorProfilePage />} />
+            <Route path="/confirm/:token" element={<ConfirmPage />} />
+            <Route path="/unsubscribe/:token" element={<UnsubscribePage />} />
+            <Route
+              path="/publish"
+              element={
+                <AuthGuard>
+                  <PublishPage />
+                </AuthGuard>
+              }
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
           <Route path="/auth/callback" element={<SsoCallbackPage />} />

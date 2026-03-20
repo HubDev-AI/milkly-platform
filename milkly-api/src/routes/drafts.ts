@@ -18,6 +18,14 @@ function requireParam(value: string | undefined, name: string): string {
   return value;
 }
 
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60) || "untitled";
+}
+
 // GET / — list user's non-deleted drafts, sorted by updatedAt desc
 draftsRoutes.get("/", requireAuth, async (c) => {
   const user = c.get("user");
@@ -101,6 +109,55 @@ draftsRoutes.put(
     return c.json({ data: updated });
   }
 );
+
+// POST /:id/publish — convert draft to published newsletter
+draftsRoutes.post("/:id/publish", requireAuth, async (c) => {
+  const user = c.get("user");
+  const id = requireParam(c.req.param("id"), "id");
+  const draft = await prisma.draft.findUnique({ where: { id } });
+  if (!draft || draft.deletedAt !== null) {
+    throw new AppError(ErrorCode.NOT_FOUND, `Draft '${id}' not found`);
+  }
+  if (draft.userId !== user.id) {
+    throw new AppError(ErrorCode.FORBIDDEN, "You do not have access to this draft");
+  }
+  if (!draft.mklySource.trim()) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, "Draft has no content");
+  }
+
+  const title = draft.title || "Untitled";
+  const baseSlug = generateSlug(title);
+
+  const MAX_SLUG_ATTEMPTS = 100;
+  let slug = baseSlug;
+  let attempt = 1;
+  while (attempt <= MAX_SLUG_ATTEMPTS) {
+    const conflict = await prisma.newsletter.findUnique({
+      where: { userId_slug: { userId: user.id, slug } },
+    });
+    if (!conflict) break;
+    attempt += 1;
+    slug = `${baseSlug}-${attempt}`;
+  }
+  if (attempt > MAX_SLUG_ATTEMPTS) {
+    throw new AppError(ErrorCode.INTERNAL_ERROR, "Unable to generate unique slug");
+  }
+
+  const newsletter = await prisma.newsletter.create({
+    data: {
+      title,
+      content: draft.mklySource,
+      mklySource: draft.mklySource,
+      slug,
+      status: "PUBLISHED",
+      publishedAt: new Date(),
+      userId: draft.userId,
+      ...(draft.templateId !== null && { templateId: draft.templateId }),
+    },
+  });
+
+  return c.json({ data: newsletter });
+});
 
 // DELETE /:id — soft delete (set deletedAt = now)
 draftsRoutes.delete("/:id", requireAuth, async (c) => {

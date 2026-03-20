@@ -6,6 +6,7 @@ import { LoadingSkeleton } from "milkly-shared/components";
 import { fetchNewsletter } from "@/lib/api-client";
 import { isNotFoundError } from "@/lib/error-utils";
 import { formatDate, getInitials } from "@/lib/format-utils";
+import { SubscribeForm } from "@/components/SubscribeForm";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,12 @@ const contentStyle: CSSProperties = {
   lineHeight: 1.75,
   color: "var(--milkly-fg-primary)",
   wordBreak: "break-word",
+};
+
+const subscribeSection: CSSProperties = {
+  marginTop: "3rem",
+  paddingTop: "2rem",
+  borderTop: "1px solid var(--milkly-border)",
 };
 
 const errorContainerStyle: CSSProperties = {
@@ -301,6 +308,10 @@ export function NewsletterPage(): JSX.Element {
         style={contentStyle}
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
+
+      <div style={subscribeSection}>
+        <SubscribeForm creatorId={user.id} />
+      </div>
     </article>
   );
 }
