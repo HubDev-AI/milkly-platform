@@ -17,7 +17,14 @@
     "isolatedModules": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@mklyml/editor/*": ["../../workspace/milkly-mklyml/mkly-editor/src/*"],
+      "@mklyml/core": ["../../workspace/milkly-mklyml/mkly/src/index.ts"],
+      "@mklyml/core/*": ["../../workspace/milkly-mklyml/mkly/src/*"],
+      "@mklyml/kits/newsletter": ["../../workspace/milkly-mklyml/mkly-kits/newsletter/src/index.ts"],
+      "@mklyml/plugins/email": ["../../workspace/milkly-mklyml/mkly-plugins/email/src/index.ts"],
+      "@mkly": ["../../workspace/milkly-mklyml/mkly/src/index.ts"],
+      "@mkly-kits/*": ["../../workspace/milkly-mklyml/mkly-kits/*"]
     }
   },
   "include": ["src"],
