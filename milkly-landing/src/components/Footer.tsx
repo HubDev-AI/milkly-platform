@@ -39,7 +39,7 @@ export function Footer(): JSX.Element {
       <span>
         <span style={brandStyle}>milkly</span> &copy; {year}
       </span>
-      <nav style={navStyle}>
+      <nav style={navStyle} aria-label="Footer navigation">
         <Link to="/privacy" style={linkStyle}>
           Privacy
         </Link>

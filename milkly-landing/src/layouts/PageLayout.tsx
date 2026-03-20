@@ -1,8 +1,8 @@
 import type { CSSProperties } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { Footer } from "@/components/Footer";
-
-const APP_URL = import.meta.env.VITE_APP_URL ?? "https://milkly.app";
+import { APP_URL } from "@/config";
+import { createHoverHandlers } from "@/lib/hover-utils";
 
 const layoutStyle: CSSProperties = {
   minHeight: "100dvh",
@@ -72,7 +72,7 @@ export function PageLayout(): JSX.Element {
         <Link to="/" style={brandStyle} aria-label="Milkly home">
           milkly
         </Link>
-        <nav style={navStyle}>
+        <nav style={navStyle} aria-label="Main navigation">
           <Link to="/privacy" style={navLinkStyle}>
             Privacy
           </Link>
@@ -82,12 +82,10 @@ export function PageLayout(): JSX.Element {
           <a
             href={APP_URL}
             style={ctaLinkStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--milkly-brand-dark)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--milkly-brand)";
-            }}
+            {...createHoverHandlers(
+              { background: "var(--milkly-brand-dark)", outline: "2px solid var(--milkly-brand)", outlineOffset: "2px" },
+              { background: "var(--milkly-brand)", outline: "", outlineOffset: "" },
+            )}
           >
             Sign In
           </a>

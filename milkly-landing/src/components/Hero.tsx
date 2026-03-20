@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
-
-const APP_URL = import.meta.env.VITE_APP_URL ?? "https://milkly.app";
+import { APP_URL } from "@/config";
+import { createHoverHandlers } from "@/lib/hover-utils";
 
 const sectionStyle: CSSProperties = {
   display: "flex",
@@ -65,18 +65,10 @@ export function Hero(): JSX.Element {
       <a
         href={APP_URL}
         style={ctaStyle}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget;
-          el.style.background = "var(--milkly-brand-dark)";
-          el.style.transform = "translateY(-1px)";
-          el.style.boxShadow = "var(--milkly-shadow-lg)";
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget;
-          el.style.background = "var(--milkly-brand)";
-          el.style.transform = "";
-          el.style.boxShadow = "var(--milkly-shadow-md)";
-        }}
+        {...createHoverHandlers(
+          { background: "var(--milkly-brand-dark)", transform: "translateY(-1px)", boxShadow: "var(--milkly-shadow-lg)", outline: "2px solid var(--milkly-brand)", outlineOffset: "2px" },
+          { background: "var(--milkly-brand)", transform: "", boxShadow: "var(--milkly-shadow-md)", outline: "", outlineOffset: "" },
+        )}
       >
         Start Creating
       </a>

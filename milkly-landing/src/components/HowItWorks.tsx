@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { PenLine, Globe, Mail } from "lucide-react";
+import { createHoverHandlers } from "@/lib/hover-utils";
 
 const sectionStyle: CSSProperties = {
   padding: "4rem 2rem",
@@ -103,17 +104,10 @@ const steps: readonly StepData[] = [
   },
 ] as const;
 
-function handleMouseEnter(e: React.MouseEvent<HTMLDivElement>): void {
-  const el = e.currentTarget;
-  el.style.transform = "translateY(-4px)";
-  el.style.boxShadow = "var(--milkly-shadow-lg)";
-}
-
-function handleMouseLeave(e: React.MouseEvent<HTMLDivElement>): void {
-  const el = e.currentTarget;
-  el.style.transform = "";
-  el.style.boxShadow = "var(--milkly-shadow-sm)";
-}
+const cardHoverHandlers = createHoverHandlers(
+  { transform: "translateY(-4px)", boxShadow: "var(--milkly-shadow-lg)" },
+  { transform: "", boxShadow: "var(--milkly-shadow-sm)" },
+);
 
 export function HowItWorks(): JSX.Element {
   return (
@@ -128,8 +122,7 @@ export function HowItWorks(): JSX.Element {
             <div
               key={step.title}
               style={cardStyle}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+              {...cardHoverHandlers}
             >
               <div style={iconWrapStyle} aria-hidden="true">
                 <Icon size={24} strokeWidth={1.75} />

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { Sparkles, ShieldCheck, BarChart3 } from "lucide-react";
+import { createHoverHandlers } from "@/lib/hover-utils";
 
 const sectionStyle: CSSProperties = {
   padding: "4rem 2rem",
@@ -78,17 +79,10 @@ const features: readonly FeatureData[] = [
   },
 ] as const;
 
-function handleMouseEnter(e: React.MouseEvent<HTMLDivElement>): void {
-  const el = e.currentTarget;
-  el.style.transform = "translateY(-2px)";
-  el.style.boxShadow = "var(--milkly-shadow-md)";
-}
-
-function handleMouseLeave(e: React.MouseEvent<HTMLDivElement>): void {
-  const el = e.currentTarget;
-  el.style.transform = "";
-  el.style.boxShadow = "none";
-}
+const cardHoverHandlers = createHoverHandlers(
+  { transform: "translateY(-2px)", boxShadow: "var(--milkly-shadow-md)" },
+  { transform: "", boxShadow: "none" },
+);
 
 export function Features(): JSX.Element {
   return (
@@ -103,8 +97,7 @@ export function Features(): JSX.Element {
             <div
               key={feature.title}
               style={cardStyle}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+              {...cardHoverHandlers}
             >
               <Icon size={22} strokeWidth={1.75} style={iconStyle} aria-hidden="true" />
               <h3 style={cardTitleStyle}>{feature.title}</h3>
