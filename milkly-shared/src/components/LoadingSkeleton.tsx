@@ -15,6 +15,9 @@ const SHIMMER_KEYFRAMES = `
 }
 `;
 
+// Client-side only dedup — always inject during SSR (idempotent in HTML)
+let shimmerInjectedClient = false;
+
 export function LoadingSkeleton({
   width = "100%",
   height = "1rem",
@@ -34,9 +37,15 @@ export function LoadingSkeleton({
     ...style,
   };
 
+  const isServer = typeof window === "undefined";
+  const shouldInjectStyle = isServer || !shimmerInjectedClient;
+  if (!isServer && !shimmerInjectedClient) {
+    shimmerInjectedClient = true;
+  }
+
   return (
     <>
-      <style>{SHIMMER_KEYFRAMES}</style>
+      {shouldInjectStyle && <style>{SHIMMER_KEYFRAMES}</style>}
       <span
         role="status"
         aria-label="Loading…"

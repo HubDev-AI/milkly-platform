@@ -1,3 +1,4 @@
+import http from "node:http";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ViteDevServer } from "vite";
@@ -65,8 +66,6 @@ async function handleDevAssets(
   ) {
     return new Promise<Response | null>((resolveResponse) => {
       // Use Vite's connect middleware via a minimal Node-compatible shim
-      const http = require("node:http") as typeof import("node:http");
-
       const fakeReq = new http.IncomingMessage(
         undefined as unknown as import("node:net").Socket,
       );

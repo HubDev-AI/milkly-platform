@@ -5,31 +5,8 @@ import DOMPurify from "isomorphic-dompurify";
 import { LoadingSkeleton } from "milkly-shared/components";
 import { fetchNewsletter } from "@/lib/api-client";
 import { isNotFoundError } from "@/lib/error-utils";
+import { formatDate, getInitials } from "@/lib/format-utils";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
-function getInitials(name: string | null): string {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return (parts[0]?.[0] ?? "?").toUpperCase();
-  return `${(parts[0]?.[0] ?? "").toUpperCase()}${(parts[parts.length - 1]?.[0] ?? "").toUpperCase()}`;
-}
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -269,8 +246,8 @@ export function NewsletterPage(): JSX.Element {
   const displayName = user.name ?? user.username ?? "Anonymous";
   const publishedDate =
     newsletter.publishedAt !== null
-      ? formatDate(newsletter.publishedAt)
-      : formatDate(newsletter.createdAt);
+      ? formatDate(newsletter.publishedAt, { year: "numeric", month: "long", day: "numeric" })
+      : formatDate(newsletter.createdAt, { year: "numeric", month: "long", day: "numeric" });
   const sanitizedContent = DOMPurify.sanitize(newsletter.content);
 
   return (

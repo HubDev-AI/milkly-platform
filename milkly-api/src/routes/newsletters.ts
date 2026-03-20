@@ -62,16 +62,20 @@ newslettersRoutes.post("/:id/publish", requireAuth, async (c) => {
 
   const baseSlug = generateSlug(newsletter.title) || "untitled";
 
-  // Resolve slug conflicts for same user
+  // Resolve slug conflicts for same user (capped at 100 attempts)
+  const MAX_SLUG_ATTEMPTS = 100;
   let slug = baseSlug;
   let attempt = 1;
-  while (true) {
+  while (attempt <= MAX_SLUG_ATTEMPTS) {
     const conflict = await prisma.newsletter.findUnique({
       where: { userId_slug: { userId: user.id, slug } },
     });
     if (!conflict || conflict.id === id) break;
     attempt += 1;
     slug = `${baseSlug}-${attempt}`;
+  }
+  if (attempt > MAX_SLUG_ATTEMPTS) {
+    throw new AppError(ErrorCode.INTERNAL_ERROR, "Unable to generate unique slug");
   }
 
   const published = await prisma.newsletter.update({
