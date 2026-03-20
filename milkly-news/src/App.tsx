@@ -1,5 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PublicLayout } from "@/layouts/PublicLayout";
+import { BrowsePage } from "@/pages/BrowsePage";
+import { NewsletterPage } from "@/pages/NewsletterPage";
+import { CreatorProfilePage } from "@/pages/CreatorProfilePage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
+import { SsoCallbackPage } from "@/pages/SsoCallbackPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -9,37 +15,17 @@ const queryClient = new QueryClient({
   },
 });
 
-function Placeholder(): JSX.Element {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100dvh",
-        fontFamily: "var(--milkly-font-sans)",
-        color: "var(--milkly-fg-primary)",
-        background: "var(--milkly-bg-primary)",
-      }}
-    >
-      <h1
-        style={{
-          fontFamily: "var(--milkly-font-serif)",
-          fontSize: "2rem",
-          fontWeight: 600,
-        }}
-      >
-        milkly.news
-      </h1>
-    </div>
-  );
-}
-
 function App(): JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
-        <Route path="/" element={<Placeholder />} />
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<BrowsePage />} />
+          <Route path="/@:username/:slug" element={<NewsletterPage />} />
+          <Route path="/@:username" element={<CreatorProfilePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+        <Route path="/auth/callback" element={<SsoCallbackPage />} />
       </Routes>
     </QueryClientProvider>
   );
