@@ -15,6 +15,8 @@ const SHIMMER_KEYFRAMES = `
 }
 `;
 
+let shimmerInjected = false;
+
 export function LoadingSkeleton({
   width = "100%",
   height = "1rem",
@@ -34,9 +36,14 @@ export function LoadingSkeleton({
     ...style,
   };
 
+  const shouldInjectStyle = !shimmerInjected;
+  if (!shimmerInjected) {
+    shimmerInjected = true;
+  }
+
   return (
     <>
-      <style>{SHIMMER_KEYFRAMES}</style>
+      {shouldInjectStyle && <style>{SHIMMER_KEYFRAMES}</style>}
       <span
         role="status"
         aria-label="Loading…"

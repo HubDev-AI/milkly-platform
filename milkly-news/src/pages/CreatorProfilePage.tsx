@@ -5,31 +5,9 @@ import { LoadingSkeleton } from "milkly-shared/components";
 import { fetchCreatorProfile } from "@/lib/api-client";
 import type { NewsletterWithUser } from "@/lib/api-client";
 import { isNotFoundError } from "@/lib/error-utils";
+import { formatDate, getInitials } from "@/lib/format-utils";
 import { NewsletterCard } from "@/components/NewsletterCard";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatMemberSince(dateStr: string): string {
-  try {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
-function getInitials(name: string | null): string {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return (parts[0]?.[0] ?? "?").toUpperCase();
-  return `${(parts[0]?.[0] ?? "").toUpperCase()}${(parts[parts.length - 1]?.[0] ?? "").toUpperCase()}`;
-}
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -288,7 +266,7 @@ export function CreatorProfilePage(): JSX.Element {
         <h1 style={displayNameStyle}>{displayName}</h1>
         <p style={usernameStyle}>@{creator.username}</p>
         <p style={memberSinceStyle}>
-          Member since {formatMemberSince(creator.createdAt)}
+          Member since {formatDate(creator.createdAt, { year: "numeric", month: "long" })}
         </p>
       </header>
 

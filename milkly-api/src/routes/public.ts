@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "../middleware/validation.js";
@@ -107,7 +108,12 @@ publicRoutes.post(
       return c.json({ data: { id: existing.id, confirmed: existing.confirmed } }, 200);
     }
     const subscriber = await prisma.subscriber.create({
-      data: { email, creatorId },
+      data: {
+        email,
+        creatorId,
+        confirmToken: crypto.randomBytes(32).toString("hex"),
+        unsubscribeToken: crypto.randomBytes(32).toString("hex"),
+      },
     });
     const confirmUrl = `${env.NEWS_URL}/confirm/${subscriber.confirmToken}`;
     await sendConfirmationEmail(email, confirmUrl);

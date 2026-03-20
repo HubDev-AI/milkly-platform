@@ -84,15 +84,17 @@ export class ErrorBoundary extends Component<
         <div style={containerStyle} role="alert" aria-live="assertive">
           <h1 style={headingStyle}>Something went wrong</h1>
           <p style={messageStyle}>{this.state.message}</p>
-          <button
-            type="button"
-            style={reloadButtonStyle}
-            onClick={() => {
-              window.location.reload();
-            }}
-          >
-            Reload page
-          </button>
+          {typeof window !== "undefined" && (
+            <button
+              type="button"
+              style={reloadButtonStyle}
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Reload page
+            </button>
+          )}
         </div>
       );
     }

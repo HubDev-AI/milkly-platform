@@ -4,7 +4,9 @@ import type { Newsletter, User } from "milkly-shared/types";
 
 export { parseApiError } from "milkly-shared/api";
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? getApiBaseUrl();
+const apiBaseUrl = typeof window === "undefined"
+  ? getApiBaseUrl()
+  : ((import.meta.env.VITE_API_URL as string | undefined) ?? getApiBaseUrl());
 
 export const apiClient = createApiClient(apiBaseUrl);
 

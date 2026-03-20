@@ -25,6 +25,7 @@ model User {
   templates     Template[]
   subscribers   Subscriber[]
   drafts        Draft[]
+  ssoTokens     SsoToken[]
 }
 
 model Session {
@@ -146,8 +147,8 @@ model Subscriber {
   id               String   @id @default(cuid())
   email            String
   confirmed        Boolean  @default(false)
-  confirmToken     String   @unique @default(cuid())
-  unsubscribeToken String   @unique @default(cuid())
+  confirmToken     String   @unique
+  unsubscribeToken String   @unique
   createdAt        DateTime @default(now())
 
   creatorId String
@@ -183,6 +184,8 @@ model SsoToken {
   expiresAt    DateTime
   usedAt       DateTime?
   createdAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([expiresAt])

@@ -130,8 +130,9 @@ export function SsoCallback({
         setState({ status: "success" });
         if (onSuccess !== undefined) {
           onSuccess(user);
+        } else if (typeof window !== "undefined") {
+          window.location.href = "/";
         }
-        window.location.href = "/";
       }
     }
 
@@ -184,7 +185,9 @@ export function SsoCallback({
       <AppErrorDisplay
         error={state.error !== undefined ? state.error : state.message}
         onRetry={() => {
-          window.location.reload();
+          if (typeof window !== "undefined") {
+            window.location.reload();
+          }
         }}
       />
     </div>

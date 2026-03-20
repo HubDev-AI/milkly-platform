@@ -7,6 +7,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { generateSsoToken, exchangeSsoToken } from "../services/sso.js";
 import { prisma } from "../prisma.js";
 import { AppError, ErrorCode } from "milkly-shared/errors";
+import { USERNAME_PATTERN, USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH } from "milkly-shared/constants";
 import { auth } from "../auth.js";
 import { env } from "../env.js";
 
@@ -94,9 +95,9 @@ authRoutes.put(
     z.object({
       username: z
         .string()
-        .min(3, "Username must be at least 3 characters")
-        .max(30, "Username must be at most 30 characters")
-        .regex(/^[a-zA-Z0-9-]+$/, "Username may only contain letters, numbers, and hyphens"),
+        .min(USERNAME_MIN_LENGTH, `Username must be at least ${USERNAME_MIN_LENGTH} characters`)
+        .max(USERNAME_MAX_LENGTH, `Username must be at most ${USERNAME_MAX_LENGTH} characters`)
+        .regex(USERNAME_PATTERN, "Username may only contain lowercase letters, numbers, and hyphens (cannot start or end with a hyphen)"),
     })
   ),
   async (c) => {

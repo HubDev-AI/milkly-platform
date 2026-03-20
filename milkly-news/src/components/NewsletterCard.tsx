@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import DOMPurify from "isomorphic-dompurify";
 import type { NewsletterWithUser } from "@/lib/api-client";
+import { formatDate, getInitials } from "@/lib/format-utils";
 
 export interface NewsletterCardProps {
   newsletter: NewsletterWithUser;
@@ -10,34 +12,11 @@ export interface NewsletterCardProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Strip HTML tags and take the first N characters as a plain-text preview. */
+/** Strip HTML tags via DOMPurify and take the first N characters as a plain-text preview. */
 function contentPreview(html: string, maxLength: number): string {
-  // Remove HTML tags to get plain text
-  const text = html.replace(/<[^>]*>/g, "").trim();
+  const text = DOMPurify.sanitize(html, { ALLOWED_TAGS: [] }).trim();
   if (text.length <= maxLength) return text;
   return `${text.slice(0, maxLength)}...`;
-}
-
-/** Format a date string as a locale-friendly short date. */
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
-/** Get initials from a display name (up to 2 chars). */
-function getInitials(name: string | null): string {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return (parts[0]?.[0] ?? "?").toUpperCase();
-  return `${(parts[0]?.[0] ?? "").toUpperCase()}${(parts[parts.length - 1]?.[0] ?? "").toUpperCase()}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -118,10 +97,6 @@ const dateStyle: CSSProperties = {
   marginLeft: "auto",
 };
 
-const HOVER_KEYFRAMES = `
-@keyframes milkly-card-hover {}
-`;
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -136,43 +111,40 @@ export function NewsletterCard({ newsletter }: NewsletterCardProps): JSX.Element
     : formatDate(newsletter.createdAt);
 
   return (
-    <>
-      <style>{HOVER_KEYFRAMES}</style>
-      <Link
-        to={href}
-        style={cardStyle}
-        aria-label={`Read "${newsletter.title}" by ${displayName}`}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget;
-          el.style.transform = "translateY(-2px)";
-          el.style.boxShadow = "0 8px 24px hsla(20 10% 15% / 0.12)";
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget;
-          el.style.transform = "";
-          el.style.boxShadow = "var(--milkly-shadow-lg)";
-        }}
-      >
-        <h3 style={titleStyle}>{newsletter.title}</h3>
-        {preview.length > 0 && <p style={previewStyle}>{preview}</p>}
-        <div style={metaRowStyle}>
-          {user.image ? (
-            <img
-              src={user.image}
-              alt={`${displayName}'s avatar`}
-              style={avatarStyle}
-            />
-          ) : (
-            <span style={initialsStyle} aria-hidden="true">
-              {getInitials(displayName)}
-            </span>
-          )}
-          <span style={creatorNameStyle}>{displayName}</span>
-          <time dateTime={newsletter.publishedAt ?? newsletter.createdAt} style={dateStyle}>
-            {publishedDate}
-          </time>
-        </div>
-      </Link>
-    </>
+    <Link
+      to={href}
+      style={cardStyle}
+      aria-label={`Read "${newsletter.title}" by ${displayName}`}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget;
+        el.style.transform = "translateY(-2px)";
+        el.style.boxShadow = "0 8px 24px hsla(20 10% 15% / 0.12)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget;
+        el.style.transform = "";
+        el.style.boxShadow = "var(--milkly-shadow-lg)";
+      }}
+    >
+      <h3 style={titleStyle}>{newsletter.title}</h3>
+      {preview.length > 0 && <p style={previewStyle}>{preview}</p>}
+      <div style={metaRowStyle}>
+        {user.image ? (
+          <img
+            src={user.image}
+            alt={`${displayName}'s avatar`}
+            style={avatarStyle}
+          />
+        ) : (
+          <span style={initialsStyle} aria-hidden="true">
+            {getInitials(displayName)}
+          </span>
+        )}
+        <span style={creatorNameStyle}>{displayName}</span>
+        <time dateTime={newsletter.publishedAt ?? newsletter.createdAt} style={dateStyle}>
+          {publishedDate}
+        </time>
+      </div>
+    </Link>
   );
 }

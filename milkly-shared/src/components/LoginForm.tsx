@@ -17,6 +17,8 @@ const SPIN_KEYFRAMES = `
 }
 `;
 
+let spinInjected = false;
+
 function isValidEmail(email: string): boolean {
   return EMAIL_REGEX.test(email.trim());
 }
@@ -98,6 +100,11 @@ export function LoginForm({ onSendOtp, onSuccess, className, style }: LoginFormP
     letterSpacing: "-0.01em",
   };
 
+  const shouldInjectSpin = !spinInjected;
+  if (!spinInjected) {
+    spinInjected = true;
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setError(undefined);
@@ -131,7 +138,7 @@ export function LoginForm({ onSendOtp, onSuccess, className, style }: LoginFormP
 
   return (
     <div className={`liquid-glass-card${className !== undefined ? ` ${className}` : ""}`} style={cardStyle}>
-      <style>{SPIN_KEYFRAMES}</style>
+      {shouldInjectSpin && <style>{SPIN_KEYFRAMES}</style>}
       <h2 style={headingStyle}>Sign in to Milkly</h2>
       <form onSubmit={handleSubmit} noValidate aria-label="Sign in form">
         <div>
