@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PublicLayout } from "@/layouts/PublicLayout";
 import { BrowsePage } from "@/pages/BrowsePage";
 import { NewsletterPage } from "@/pages/NewsletterPage";
@@ -17,17 +18,19 @@ const queryClient = new QueryClient({
 
 function App(): JSX.Element {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Routes>
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<BrowsePage />} />
-          <Route path="/@:username/:slug" element={<NewsletterPage />} />
-          <Route path="/@:username" element={<CreatorProfilePage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-        <Route path="/auth/callback" element={<SsoCallbackPage />} />
-      </Routes>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<BrowsePage />} />
+            <Route path="/@:username/:slug" element={<NewsletterPage />} />
+            <Route path="/@:username" element={<CreatorProfilePage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+          <Route path="/auth/callback" element={<SsoCallbackPage />} />
+        </Routes>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
