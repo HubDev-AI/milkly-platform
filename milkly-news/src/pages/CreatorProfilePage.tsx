@@ -7,6 +7,7 @@ import type { NewsletterWithUser } from "@/lib/api-client";
 import { isNotFoundError } from "@/lib/error-utils";
 import { formatDate, getInitials } from "@/lib/format-utils";
 import { NewsletterCard } from "@/components/NewsletterCard";
+import { SubscribeForm } from "@/components/SubscribeForm";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 // ---------------------------------------------------------------------------
@@ -102,6 +103,12 @@ const emptyMessageStyle: CSSProperties = {
   margin: 0,
   fontSize: "0.9375rem",
   color: "var(--milkly-fg-secondary)",
+};
+
+const subscribeSection: CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  marginBottom: "2rem",
 };
 
 const errorContainerStyle: CSSProperties = {
@@ -269,6 +276,10 @@ export function CreatorProfilePage(): JSX.Element {
           Member since {formatDate(creator.createdAt, { year: "numeric", month: "long" })}
         </p>
       </header>
+
+      <div style={subscribeSection}>
+        <SubscribeForm creatorId={creator.id} />
+      </div>
 
       {newslettersWithUser.length === 0 && (
         <div style={emptyStateStyle}>

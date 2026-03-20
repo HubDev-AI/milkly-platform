@@ -7,6 +7,7 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { EditorToolbar } from "@/components/EditorToolbar";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
+import { MenuDialog } from "@/components/MenuDialog";
 
 // ---------------------------------------------------------------------------
 // TODO: integrate @mklyml/editor when package available
@@ -111,6 +112,9 @@ export function EditorView(): JSX.Element {
   // Manual save state
   const [isManuallySaving, setIsManuallySaving] = useState(false);
   const [manualSaveError, setManualSaveError] = useState<string | null>(null);
+
+  // Menu dialog state
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Dialog state for in-app navigation protection.
   // In the current single-view architecture, the only navigation guard is beforeunload (browser tab close).
@@ -267,6 +271,7 @@ export function EditorView(): JSX.Element {
         isSaving={isManuallySaving}
         isAutoSaving={isAutoSaving}
         lastSavedAt={lastSavedAt}
+        onMenuOpen={() => { setIsMenuOpen(true); }}
       />
 
       <main style={editorContainerStyle} aria-label="Editor">
@@ -333,6 +338,11 @@ export function EditorView(): JSX.Element {
         }}
         onDiscard={handleDialogDiscard}
         onCancel={handleDialogCancel}
+      />
+
+      <MenuDialog
+        isOpen={isMenuOpen}
+        onClose={() => { setIsMenuOpen(false); }}
       />
     </div>
   );
