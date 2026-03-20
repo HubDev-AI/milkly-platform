@@ -8,6 +8,7 @@ import { generateSsoToken, exchangeSsoToken } from "../services/sso.js";
 import { prisma } from "../prisma.js";
 import { AppError, ErrorCode } from "milkly-shared/errors";
 import { USERNAME_PATTERN, USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH } from "milkly-shared/constants";
+import { extractClientIp } from "../middleware/rate-limit.js";
 import { auth } from "../auth.js";
 import { env } from "../env.js";
 
@@ -59,7 +60,7 @@ authRoutes.post(
         token: sessionToken,
         userId: user.id,
         expiresAt,
-        ipAddress: c.req.header("x-forwarded-for") ?? c.req.header("x-real-ip") ?? null,
+        ipAddress: extractClientIp(c),
         userAgent: c.req.header("user-agent") ?? null,
       },
     });

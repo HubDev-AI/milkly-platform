@@ -37,6 +37,8 @@ function extractClientIp(c: Context): string {
   return "unknown";
 }
 
+export { extractClientIp };
+
 export function rateLimit(options: RateLimitOptions) {
   const { windowMs, max, keyPrefix = "rl" } = options;
   const windowSec = Math.ceil(windowMs / 1000);

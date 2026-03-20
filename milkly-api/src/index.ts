@@ -38,12 +38,12 @@ app.use("*", logger());
 // Rate limiting per route group
 app.use("/auth/*", rateLimit({ windowMs: 15 * 60 * 1000, max: 10, keyPrefix: "rl:auth" }));
 app.use("/public/*", rateLimit({ windowMs: 60 * 1000, max: 30, keyPrefix: "rl:public" }));
-app.use("/drafts/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:write" }));
-app.use("/newsletters/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:write" }));
-app.use("/subscribers/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:write" }));
-app.use("/distributions/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:write" }));
-app.use("/templates/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:write" }));
-app.use("/ai/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:write" }));
+app.use("/drafts/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:drafts" }));
+app.use("/newsletters/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:newsletters" }));
+app.use("/subscribers/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:subscribers" }));
+app.use("/distributions/*", rateLimit({ windowMs: 60 * 1000, max: 5, keyPrefix: "rl:distributions" }));
+app.use("/templates/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:templates" }));
+app.use("/ai/*", rateLimit({ windowMs: 60 * 1000, max: 100, keyPrefix: "rl:ai" }));
 
 // better-auth built-in routes
 app.on(["GET", "POST"], "/auth/**", (c) => auth.handler(c.req.raw));

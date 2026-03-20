@@ -17,7 +17,8 @@ const SPIN_KEYFRAMES = `
 }
 `;
 
-let spinInjected = false;
+// Client-side only dedup — always inject during SSR (idempotent in HTML)
+let spinInjectedClient = false;
 
 function isValidEmail(email: string): boolean {
   return EMAIL_REGEX.test(email.trim());
@@ -100,9 +101,10 @@ export function LoginForm({ onSendOtp, onSuccess, className, style }: LoginFormP
     letterSpacing: "-0.01em",
   };
 
-  const shouldInjectSpin = !spinInjected;
-  if (!spinInjected) {
-    spinInjected = true;
+  const isServer = typeof window === "undefined";
+  const shouldInjectSpin = isServer || !spinInjectedClient;
+  if (!isServer && !spinInjectedClient) {
+    spinInjectedClient = true;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
